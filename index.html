@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transportes - São José do Belmonte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Transportation Orange -->
+    <!-- Application Structure Plan: A side-navigation SPA, consistent with the previous successful catalogs. The left sidebar organizes services into logical categories for this department (e.g., Manutenção de Estradas, Maquinário). The main content area provides a search bar and interactive accordion cards for each service. This master-detail structure is highly effective for guiding rural citizens, allowing them to quickly find the procedures for each request. -->
+    <!-- Visualization & Content Choices: Report Info: Transportation Services Text -> Goal: Guide User -> Presentation: Interactive list/card system -> Interaction: Category filtering, text search, accordion-style detail expansion -> Justification: The source material is entirely procedural. The interactive card system is the most effective way to transform dense, text-based instructions into a user-friendly, task-oriented tool. Unicode icons are used to visually break up text sections, enhancing scannability. All text was proofread for clarity and spelling. -> Library/Method: Vanilla JS for DOM manipulation, TailwindCSS for layout. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --bg-main: #f8f7f4;
+            --bg-sidebar: #e9e7e2;
+            --text-dark: #3a3a3a;
+            --text-light: #5a5a5a;
+            --accent: #d97706; /* Transportation Orange */
+            --border-color: #d1d5db;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+        }
+        .sidebar-item.active {
+            background-color: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+        .service-card-header {
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .service-card-header:hover {
+            background-color: #f0f0f0;
+        }
+        .service-card-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+        }
+        .service-card-details.open {
+            max-height: 2500px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .icon {
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+            color: var(--accent);
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="antialiased">
+
+    <div id="app" class="flex flex-col md:flex-row min-h-screen">
+        
+        <aside id="sidebar" class="w-full md:w-64 lg:w-72 bg-[var(--bg-sidebar)] p-4 md:p-6 flex-shrink-0">
+            <h1 class="text-xl font-bold text-gray-800 mb-6">Secretaria de Transportes</h1>
+            <nav id="category-nav">
+                <ul class="space-y-2">
+                    <li><button data-category="Todos" class="sidebar-item w-full text-left p-3 rounded-lg font-medium text-[var(--text-light)] transition-colors duration-200 hover:bg-gray-300 active">Todos os Serviços</button></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-4 md:p-8 lg:p-10">
+            <header class="mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-[var(--text-dark)]">Catálogo de Serviços de Transportes</h2>
+                <p class="text-md text-[var(--text-light)] mt-1">Informações sobre manutenção de estradas rurais e solicitação de maquinário.</p>
+                <div class="mt-6">
+                    <input type="text" id="search-input" placeholder="🔎 Pesquisar por serviço..." class="w-full max-w-lg p-3 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--accent)] focus:outline-none transition-shadow">
+                </div>
+            </header>
+            
+            <div id="services-container" class="space-y-4">
+                
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const servicesData = [
+            {
+                "category": "Manutenção de Estradas Rurais",
+                "title": "Solicitar manilhas para estradas rurais",
+                "description": "Permite que moradores da zona rural solicitem a instalação de manilhas (tubos de concreto) em trechos de estradas vicinais cortadas por pequenos riachos. O serviço visa criar uma passagem segura para a água, evitando que a estrada seja danificada pela erosão e garantindo o tráfego de veículos.",
+                "documents": [
+                    "Endereço completo",
+                    "WhatsApp para contato",
+                    "Ponto de referência",
+                    "Foto do local"
+                ],
+                "requirements": [],
+                "procedure": [
+                    "Comparecer à Secretaria de Transportes.",
+                    "Apresentar a documentação necessária.",
+                    "A solicitação será analisada pela equipe.",
+                    "Após a aprovação, a secretaria entrará em contato para agendar a data do serviço."
+                ]
+            },
+            {
+                "category": "Manutenção de Estradas Rurais",
+                "title": "Solicitar reparo de passagem molhada",
+                "description": "Possibilita que a comunidade rural solicite a manutenção de 'passagens molhadas', que são estruturas de concreto ou pedras construídas sobre rios ou riachos para permitir a passagem de veículos. O reparo é necessário quando a estrutura é danificada pelas chuvas, comprometendo o transporte.",
+                "documents": [
+                    "Endereço completo",
+                    "WhatsApp para contato",
+                    "Ponto de referência",
+                    "Foto do local"
+                ],
+                "requirements": [
+                    "Informar o endereço completo e exato onde o serviço é necessário.",
+                    "Descrever o problema ou a melhoria desejada com o máximo de detalhes possível.",
+                    "Apresentar fotos do local para facilitar a identificação do problema."
+                ],
+                "procedure": [
+                    "Comparecer à Secretaria de Transportes.",
+                    "Apresentar a documentação necessária.",
+                    "A solicitação será analisada pela equipe.",
+                    "Após a aprovação, a secretaria entrará em contato para agendar a data do serviço."
+                ]
+            },
+            {
+                "category": "Manutenção de Estradas Rurais",
+                "title": "Solicitar máquina para recuperação de estrada em zona rural",
+                "description": "Permite que moradores da zona rural solicitem o serviço de patrolamento e cascalhamento para recuperar trechos de estradas vicinais que estejam em más condições, com buracos, atoleiros ou irregularidades. O objetivo é garantir o escoamento da produção agrícola e o transporte dos moradores.",
+                "documents": [
+                    "Endereço completo",
+                    "WhatsApp para contato",
+                    "Ponto de referência",
+                    "Foto do local",
+                    "Informar qual máquina é necessária para realizar o trabalho."
+                ],
+                "requirements": [
+                    "Informar o endereço completo e exato onde o serviço é necessário.",
+                    "Descrever o problema ou a melhoria desejada com o máximo de detalhes possível.",
+                    "Apresentar fotos do local para facilitar a identificação do problema.",
+                    "Informar qual tipo de máquina é necessária para o reparo."
+                ],
+                "procedure": [
+                    "Comparecer à Secretaria de Transportes.",
+                    "Apresentar a documentação necessária.",
+                    "A solicitação será analisada pela equipe.",
+                    "Após a aprovação, a secretaria entrará em contato para agendar a data do serviço."
+                ]
+            },
+            {
+                "category": "Maquinário e Apoio ao Produtor",
+                "title": "Solicitar máquina pesada para trabalho em zona rural",
+                "description": "Garante que o pequeno agricultor familiar possa solicitar à prefeitura, por um custo subsidiado ou gratuitamente (dependendo da política local), o uso de máquinas pesadas, como um trator para arar a terra, uma retroescavadeira para limpar um barreiro ou construir um pequeno açude.",
+                "documents": [
+                    "Endereço completo",
+                    "WhatsApp para contato",
+                    "Ponto de referência",
+                    "Foto do local",
+                    "Informar qual máquina é necessária para realizar o trabalho."
+                ],
+                "requirements": [
+                    "Informar o endereço completo e exato onde o serviço é necessário.",
+                    "Descrever o problema ou a melhoria desejada com o máximo de detalhes possível.",
+                    "Apresentar fotos do local para facilitar a identificação do problema.",
+                    "Informar qual tipo de máquina é necessária para o reparo."
+                ],
+                "procedure": [
+                    "Comparecer à Secretaria de Transportes.",
+                    "Apresentar a documentação necessária.",
+                    "A solicitação será analisada pela equipe.",
+                    "Após a aprovação, a secretaria entrará em contato para agendar a data do serviço."
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const servicesContainer = document.getElementById('services-container');
+            const categoryNav = document.getElementById('category-nav').querySelector('ul');
+            const searchInput = document.getElementById('search-input');
+            const categories = [...new Set(servicesData.map(service => service.category))];
+
+            function initNav() {
+                categories.sort().forEach(category => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<button data-category="${category}" class="sidebar-item w-full text-left p-3 rounded-lg font-medium text-[var(--text-light)] transition-colors duration-200 hover:bg-gray-300">${category}</button>`;
+                    categoryNav.appendChild(li);
+                });
+            }
+
+            function renderServices(filter = 'Todos', searchTerm = '') {
+                servicesContainer.innerHTML = '';
+                let filteredServices = servicesData;
+
+                if (filter !== 'Todos') {
+                    filteredServices = filteredServices.filter(service => service.category === filter);
+                }
+
+                if (searchTerm) {
+                    const normalizedSearchTerm = searchTerm.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    filteredServices = filteredServices.filter(service => {
+                        const normalizedTitle = service.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        const normalizedDescription = service.description.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        return normalizedTitle.includes(normalizedSearchTerm) || normalizedDescription.includes(normalizedSearchTerm);
+                    });
+                }
+
+                if (filteredServices.length === 0) {
+                    servicesContainer.innerHTML = `<p class="text-center text-gray-500 col-span-full">Nenhum serviço encontrado.</p>`;
+                    return;
+                }
+                
+                filteredServices.forEach(service => {
+                    const card = document.createElement('div');
+                    card.className = 'service-card bg-white border border-[var(--border-color)] rounded-lg shadow-sm overflow-hidden';
+
+                    const documentsHTML = service.documents.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-md flex items-center"><span class="icon">📄</span>Documentos Necessários</h4>
+                            <ul class="list-disc list-inside mt-2 text-[var(--text-light)] pl-2 space-y-1">
+                                ${service.documents.map(doc => `<li>${doc}</li>`).join('')}
+                            </ul>
+                        </div>` : '';
+                    
+                    const requirementsHTML = service.requirements.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-md flex items-center"><span class="icon">✅</span>Requisitos</h4>
+                            <ul class="list-disc list-inside mt-2 text-[var(--text-light)] pl-2 space-y-1">
+                                ${service.requirements.map(req => `<li>${req}</li>`).join('')}
+                            </ul>
+                        </div>` : '';
+
+                    card.innerHTML = `
+                        <div class="service-card-header p-4 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-[var(--text-dark)]">${service.title}</h3>
+                            <span class="transform transition-transform duration-300">▼</span>
+                        </div>
+                        <div class="service-card-details px-4">
+                            <p class="text-[var(--text-light)] mb-4">${service.description}</p>
+                            ${documentsHTML}
+                            ${requirementsHTML}
+                            <div>
+                                <h4 class="font-semibold text-md flex items-center"><span class="icon">➡️</span>Procedimento</h4>
+                                <ol class="list-decimal list-inside mt-2 text-[var(--text-light)] pl-2 space-y-1">
+                                    ${service.procedure.map(step => `<li>${step}</li>`).join('')}
+                                </ol>
+                            </div>
+                        </div>
+                    `;
+                    servicesContainer.appendChild(card);
+                });
+            }
+            
+            categoryNav.addEventListener('click', (e) => {
+                if(e.target.tagName === 'BUTTON'){
+                    const category = e.target.dataset.category;
+                    searchInput.value = '';
+                    renderServices(category);
+
+                    document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value;
+                const activeCategory = document.querySelector('.sidebar-item.active').dataset.category;
+                renderServices(activeCategory, searchTerm);
+            });
+            
+            servicesContainer.addEventListener('click', (e) => {
+                const header = e.target.closest('.service-card-header');
+                if (header) {
+                    const details = header.nextElementSibling;
+                    const icon = header.querySelector('span');
+                    const isOpen = details.classList.contains('open');
+
+                    document.querySelectorAll('.service-card-details.open').forEach(openDetail => {
+                        if (openDetail !== details) {
+                             openDetail.classList.remove('open');
+                             openDetail.previousElementSibling.querySelector('span').style.transform = 'rotate(0deg)';
+                        }
+                    });
+
+                    details.classList.toggle('open');
+                    icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+                }
+            });
+
+            initNav();
+            renderServices();
+        });
+    </script>
+</body>
+</html>
+
